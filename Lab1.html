@@ -16,13 +16,15 @@
         <p>Couleur de la ligne:</p>
         <div>
             <input type="color" id="P1Color" name="head"
-                   value="#9e4753">
+                   value="#9e4753"
+                   onchange="redraw()">
             <label for="P1Color">Player 1</label>
         </div>
         
         <div>
             <input type="color" id="P2Color" name="body"
-                    value="#000af3">
+                    value="#000af3"
+                    onchange="redraw()">
             <label for="P2Color">Player 2</label>
         </div>
     
@@ -84,10 +86,10 @@
 	<script>
 		// Creates a 2D array filled with zeros
 		var create2DArray = function (numColumns, numRows) {
-			var array = [];
-			for (var c = 0; c < numColumns; c++) {
+			let array = [];
+			for (let c = 0; c < numColumns; c++) {
 				array.push([]); // adds an empty 1D array at the end of "array"
-				for (var r = 0; r < numRows; r++) {
+				for (let r = 0; r < numRows; r++) {
 					array[c].push(0); // add zero at end of the 1D array "array[c]"
 				}
 			}
@@ -151,8 +153,8 @@
         }
 
         function doMouseUp(e) {
-            var delta_x = e.pageX - mouse_x0;
-            var delta_y = e.pageY - mouse_y0;
+            let delta_x = e.pageX - mouse_x0;
+            let delta_y = e.pageY - mouse_y0;
 
             console.log("Mouse up detected! delta_x = " + delta_x + ", delta_y = " + delta_y);
 
@@ -176,48 +178,117 @@
             }
         }
 
+        var p1KeysDown = [];
+        var p2KeysDown = [];
 		function keyDownHandler(e) {
 			// console.log("keyCode: " + e.keyCode );
 			// e = e || window.event;
 
 			//For player 1
 			if (e.keyCode === 38) { // up arrow
-				lightCycle1_vx = 0;
-				lightCycle1_vy = -1;
+                p1KeysDown.push('up');
 			}
 			else if (e.keyCode === 40) { // down arrow
-				lightCycle1_vx = 0;
-				lightCycle1_vy = 1;
+                p1KeysDown.push('down');
 			}
 			else if (e.keyCode === 37) { // left arrow
-				lightCycle1_vy = 0;
-				lightCycle1_vx = -1;
+                p1KeysDown.push('left');
 			}
 			else if (e.keyCode === 39) { // right arrow
-				lightCycle1_vy = 0;
-				lightCycle1_vx = 1;
+                p1KeysDown.push('right');
 			}
 
 			//For player 2
 			if (e.keyCode === 87) { // w
-				lightCycle2_vx = 0;
-				lightCycle2_vy = -1;
+                p2KeysDown.push('up');
 			}
 			else if (e.keyCode === 83) { // a
-				lightCycle2_vx = 0;
-				lightCycle2_vy = 1;
+                p2KeysDown.push('left');
 			}
 			else if (e.keyCode === 65) { // s
-				lightCycle2_vy = 0;
-				lightCycle2_vx = -1;
+                p2KeysDown.push('down');
 			}
 			else if (e.keyCode === 68) { // d
-				lightCycle2_vy = 0;
-				lightCycle2_vx = 1;
+                p2KeysDown.push('right');
 			}
+
+            updatePlayersDirection();
 		}
 
+        function updatePlayersDirection() {
+            switch(p1KeysDown[p1KeysDown.length - 1]) {
+                case 'up': 
+                    lightCycle1_vx = 0;
+                    lightCycle1_vy = -1;
+                    break; 
+                case 'left':
+                    lightCycle1_vy = 0;
+                    lightCycle1_vx = -1;    
+                    break;
+                case 'down':
+                    lightCycle1_vx = 0;
+                    lightCycle1_vy = 1;
+                    break; 
+                case 'right':
+                    lightCycle1_vy = 0;
+                    lightCycle1_vx = 1;
+                    break; 
+            }
+
+            switch(p2KeysDown[p2KeysDown.length - 1]) {
+                case 'up':
+                    lightCycle2_vx = 0;
+                    lightCycle2_vy = -1;
+                    break;
+                case 'left':
+                    lightCycle2_vx = 0;
+                    lightCycle2_vy = 1;
+                    break;
+                case 'down':
+                    lightCycle2_vy = 0;
+                    lightCycle2_vx = -1;
+                    break; 
+                case 'right':
+                    lightCycle2_vy = 0;
+                    lightCycle2_vx = 1;
+                    break;
+            }
+        }
+
+        function keyUpHandler(e) {
+            //For player 1
+			if (e.keyCode === 38) { // up arrow
+                p1KeysDown = p1KeysDown.filter(p => p !== 'up');
+			}
+			else if (e.keyCode === 40) { // down arrow
+                p1KeysDown = p1KeysDown.filter(p => p !== 'down');
+			}
+			else if (e.keyCode === 37) { // left arrow
+                p1KeysDown = p1KeysDown.filter(p => p !== 'left');
+			}
+			else if (e.keyCode === 39) { // right arrow
+                p1KeysDown = p1KeysDown.filter(p => p !== 'right');
+			}
+
+			//For player 2
+			if (e.keyCode === 87) { // w
+                p2KeysDown = p2KeysDown.filter(p => p !== 'up');
+			}
+			else if (e.keyCode === 83) { // a
+                p2KeysDown = p2KeysDown.filter(p => p !== 'left');
+			}
+			else if (e.keyCode === 65) { // s
+                p2KeysDown = p2KeysDown.filter(p => p !== 'down');
+			}
+			else if (e.keyCode === 68) { // d
+                p2KeysDown = p2KeysDown.filter(p => p !== 'right');
+			}
+
+            updatePlayersDirection();
+        }
+
 		document.onkeydown = keyDownHandler;
+		document.onkeyup = keyUpHandler;
 
         function loop() {
             if(!stopGame) {
@@ -234,8 +305,8 @@
 			C.fillRect(0, 0, canvas.width, canvas.height);
 
 
-			for (var i = 0; i < NUM_CELLS_HORIZONTAL; ++i) {
-				for (var j = 0; j < NUM_CELLS_VERTICAL; ++j) {
+			for (let i = 0; i < NUM_CELLS_HORIZONTAL; ++i) {
+				for (let j = 0; j < NUM_CELLS_VERTICAL; ++j) {
 					if ( grid[i][j] === CELL_OCCUPIED_P1 ) {
 						C.fillStyle = document.getElementById("P1Color").value ;
 						C.fillRect(x0 + i * cellSize + 1, y0 + j * cellSize + 1, cellSize - 2, cellSize - 2);
@@ -257,11 +328,11 @@
 		var advance = function () {
 
 			if (lightCycle1_alive && lightCycle2_alive) {
-				var new1_x = lightCycle1_x + lightCycle1_vx;
-				var new1_y = lightCycle1_y + lightCycle1_vy;
+				let new1_x = lightCycle1_x + lightCycle1_vx;
+				let new1_y = lightCycle1_y + lightCycle1_vy;
 
-				var new2_x = lightCycle2_x + lightCycle2_vx;
-				var new2_y = lightCycle2_y + lightCycle2_vy;
+				let new2_x = lightCycle2_x + lightCycle2_vx;
+				let new2_y = lightCycle2_y + lightCycle2_vy;
 
 				// Check for collision with grid boundaries and with trail
 				if ( // player 1
@@ -351,6 +422,7 @@
                 }
             }
             redraw();
+            stop();
         }
 
         redraw();
